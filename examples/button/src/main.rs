@@ -7,17 +7,16 @@ use lvgl::{NativeObject, Object};
 use lvgl_sys;
 use std::time::Duration;
 
-fn on_click(obj: *mut lvgl_sys::lv_obj_t, evt: lvgl_sys::lv_event_t) {
+unsafe extern "C" fn on_click(obj: *mut lvgl_sys::lv_obj_t, evt: lvgl_sys::lv_event_t) {
     println!("obj: {:?}", obj);
     println!("evt: {:?}", evt);
+    panic!("Callback triggered");
 }
 
 fn main() -> Result<(), String> {
     let mut display = SimulatorDisplay::new(Size::new(1000, 1000));
 
-    let output_settings = OutputSettingsBuilder::new()
-        //.theme(BinaryColorTheme::OledBlue)
-        .build();
+    let output_settings = OutputSettingsBuilder::new().build();
     let mut window = Window::new("Hello World", &output_settings);
 
     unsafe {
@@ -32,14 +31,16 @@ fn main() -> Result<(), String> {
 
     // Create a button
     let mut button = lvgl::Button::new(&mut screen);
-    button.set_pos(100, 10);
+    button.set_pos(5, 5);
 
     // Label the button
     let mut label = lvgl::Label::new(&mut button);
     label.set_text("Hello World!");
 
-    // FIXME: add a callback to the button
-    lvgl_sys::lv_obj_set_event_cb(button.raw().as_mut(), on_click);
+    // Set button callback
+    unsafe {
+        lvgl_sys::lv_obj_set_event_cb(button.raw().as_mut(), Some(on_click));
+    };
 
     let mut i = 0;
     'running: loop {

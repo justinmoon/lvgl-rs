@@ -3,4 +3,5 @@ members = [
     "lvgl",
     "lvgl-sys",
     "examples/demo",
+    "examples/button",
 ]
